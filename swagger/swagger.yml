@@ -1,0 +1,396 @@
+swagger: "2.0"
+info:
+  title: 规则引擎 API
+  description: 规则管理、绑定、解析
+  version: 1.0.0
+  contact:
+    email: 361016945@qq.com
+basePath: /v1/rule
+paths:
+  /analy/:
+    post:
+      tags:
+      - analy
+      description: 根据业务数据查找匹配规则
+      operationId: AnalyController.Analy
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: the rule name and business data
+        required: true
+        schema:
+          $ref: '#/definitions/data'
+      responses:
+        "200":
+          description: '{string} 数值'
+        "201":
+          description: '{string} json'
+        "401":
+          description: token有误
+        "404":
+          description: 规则不匹配
+  /bind/:
+    delete:
+      tags:
+      - bind
+      description: 根据表单和规则名删除绑定的字段
+      operationId: BindController.Delete
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: query
+        name: name
+        description: the form name
+        required: true
+        type: string
+      - in: query
+        name: rule
+        description: the rule name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} 删除成功'
+        "400":
+          description: 请求参数为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+  /bind/{name}:
+    get:
+      tags:
+      - bind
+      description: 根据表单名获取所有绑定的规则
+      operationId: BindController.GetAll
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the form name
+        required: true
+        type: string
+      responses:
+        "200":
+          schema:
+            $ref: '#/definitions/Form'
+        "400":
+          description: 表单名为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+    post:
+      tags:
+      - bind
+      description: 根据表单名绑定多个规则
+      operationId: BindController.Bind
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the form name
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: the rule content and form field
+        required: true
+        schema:
+          $ref: '#/definitions/Form'
+      responses:
+        "200":
+          description: '{string} 绑定成功'
+        "400":
+          description: 请求参数有误
+        "401":
+          description: token有误
+        "500":
+          description: 数据库故障
+  /mamt/:
+    get:
+      tags:
+      - mamt
+      description: 获取所有的规则名
+      operationId: RuleController.GetAll
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      responses:
+        "200":
+          schema:
+            type: array
+            items:
+              type: string
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+    post:
+      tags:
+      - mamt
+      description: 添加或修改多个规则集
+      operationId: RuleController.Create
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: the rules content
+        required: true
+        schema:
+          $ref: '#/definitions/Rules'
+      responses:
+        "200":
+          description: '{string} OK'
+        "400":
+          description: 请求参数有误
+        "401":
+          description: token有误
+        "500":
+          description: 服务器故障
+    delete:
+      tags:
+      - mamt
+      description: 删除不同规则集中的多个规则
+      operationId: RuleController.DeleteAll
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: '{"ruleName":["id1", "id2" ...] }'
+        required: true
+      responses:
+        "200":
+          description: '{string} 删除成功'
+        "400":
+          description: 请求参数为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+  /mamt/{name}:
+    get:
+      tags:
+      - mamt
+      description: 根据规则名获取所有规则，示例数据中value字段没显示
+      operationId: RuleController.GetAll
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the rule name
+        required: true
+        type: string
+      responses:
+        "200":
+          schema:
+            $ref: '#/definitions/Result'
+        "400":
+          description: 规则名为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+  /mamt/{name}/{id}:
+    get:
+      tags:
+      - mamt
+      description: 根据规则名和id获取规则，示例数据中value字段没显示
+      operationId: RuleController.Get
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the rule name
+        required: true
+        type: string
+      - in: path
+        name: id
+        description: the rule id
+        required: true
+        type: string
+      responses:
+        "200":
+          schema:
+            $ref: '#/definitions/Rule'
+        "400":
+          description: 请求参数为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+    put:
+      tags:
+      - mamt
+      description: 根据规则名和id更新， conditions需要添加value字段
+      operationId: RuleController.Update
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the rule name
+        required: true
+        type: string
+      - in: path
+        name: id
+        description: the rule id
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: the rule content
+        required: true
+        schema:
+          $ref: '#/definitions/Rule'
+      responses:
+        "200":
+          description: '{string} OK'
+        "400":
+          description: 请求参数有误
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+    delete:
+      tags:
+      - mamt
+      description: 根据规则名和id删除规则
+      operationId: RuleController.Delete
+      parameters:
+      - in: header
+        name: Authorization
+        description: token for login api
+        required: true
+        type: string
+      - in: path
+        name: name
+        description: the rule name
+        required: true
+        type: string
+      - in: path
+        name: id
+        description: the rule id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{string} 删除成功'
+        "400":
+          description: 请求参数为空
+        "401":
+          description: token有误
+        "404":
+          description: 规则不存在
+definitions:
+  Bind:
+    title: Bind
+    type: object
+    properties:
+      key:
+        $ref: '#/definitions/Field'
+  Condition:
+    title: Condition
+    type: object
+    properties:
+      Name:
+        type: string
+      Opera:
+        type: string
+      Value:
+        $ref: '#/definitions/&{7305 0xc42031bf80 false}'
+  Field:
+    title: Field
+    type: object
+    properties:
+      flag:
+        type: string
+      name:
+        type: string
+  Form:
+    title: Form
+    type: object
+    properties:
+      name:
+        $ref: '#/definitions/Bind'
+  Result:
+    title: Result
+    type: object
+    properties:
+      id:
+        $ref: '#/definitions/Rule'
+  Rule:
+    title: Rule
+    type: object
+    properties:
+      conditions:
+        type: array
+        items:
+          $ref: '#/definitions/Condition'
+      description:
+        type: string
+      result:
+        type: string
+  Rules:
+    title: Rules
+    type: object
+    properties:
+      name:
+        type: string
+      rules:
+        $ref: '#/definitions/&{7064 0xc4202a16e0 false}'
+  data:
+    title: data
+    type: object
+    properties:
+      data: {}
+      name:
+        type: string
+tags:
+- name: mamt
+  description: |
+    规则管理控制器
+- name: bind
+  description: |
+    规则绑定控制器
+- name: analy
+  description: |
+    规则解析控制器
