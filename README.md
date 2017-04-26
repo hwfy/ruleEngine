@@ -76,7 +76,7 @@ Create a rule set
     }
 ]
 ```
-After the success of the two rules stored in redis at the same time generate the parse file car.go
+After the success of the two rules to store redis at the same time in ../ruleAnaly/models/ generate parsing file car.go
 
 
 ----------
